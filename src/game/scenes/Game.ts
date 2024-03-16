@@ -1,6 +1,7 @@
 import { EventBus } from '../EventBus';
 import { Scene } from 'phaser';
 import pickRandomWord from '../../utils/randomWords.ts';
+import Word from '../../components/Word.ts';
 
 export class Game extends Scene {
     camera: Phaser.Cameras.Scene2D.Camera;
@@ -48,57 +49,14 @@ export class Game extends Scene {
         player.anims.play('ninja-run');
 
         const word = pickRandomWord();
+        
+        const wordCloud = new Word(this, word, window.innerWidth, window.innerHeight / 2)
 
-        // Create a text object with the word at the right edge of the screen
-        let text = this.add.text(this.scale.width, 100, word, {
-            font: '40px Arial',
-            fill: '#ffffff'
-        });
-
-        // Set the origin of the text to its center
-        text.setOrigin(0.5, 0.5);
-
-        // Move the text from right to left
-        const tween = this.tweens.add({
-            targets: text,
-            x: -text.width, // move it to the left beyond its width so it completely disappears
-            ease: 'Linear', // linear movement
-            duration: 10000, // duration of the movement, adjust as needed
-            repeat: 0, // no repeat
-            onComplete: function () {
-                text.destroy(); // destroy the text object once it's off screen
-            }
-        });
         // Track user's input
-        let userInput = '';
         this.input.keyboard!.on('keydown', (event) => {
-            userInput += event.key;
-            if (word.toLowerCase().startsWith(userInput.toLowerCase())) {
-                const matchedPart = word.substring(0, userInput.length);
-                const remainingPart = word.substring(userInput.length);
-                text.setText(`[color green]${matchedPart}[/color]${remainingPart}`);
-            }
-
-            // Check if the typed word matches the displayed word
-            if (userInput.toLowerCase() === word.toLowerCase()) {
-                // Stop the text from moving
-                tween.stop();
-
-                // Fade out the text and destroy it
-                this.tweens.add({
-                    targets: text,
-                    alpha: 0,
-                    ease: 'Linear',
-                    duration: 500,
-                    onComplete: function () {
-                        text.destroy();
-                    }
-                });
-
-                // Reset userInput for the next word
-                userInput = '';
-            }
+            wordCloud.inputKey(event.key)
         });
+
         EventBus.emit('current-scene-ready', this);
     }   
 
