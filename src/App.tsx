@@ -84,7 +84,7 @@ function App()
     }
 
     return (
-        <div id="app"
+        <div  className={`flex flex-col`}
         >
             <PhaserGame ref={phaserRef} currentActiveScene={currentScene} />
                         

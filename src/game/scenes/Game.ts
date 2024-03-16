@@ -23,16 +23,16 @@ export class Game extends Scene {
         this.anims.create({
             key: 'ninja-run',
             frames: [
-                { key: 'ninja',frame:"Run__000.png"},
-                { key: 'ninja',frame:"Run__001.png"},
-                { key: 'ninja',frame:'Run__002.png'},
-                { key: 'ninja',frame:'Run__003.png'},
-                { key: 'ninja',frame:'Run__004.png'},
-                { key: 'ninja',frame:'Run__005.png'},
-                { key: 'ninja',frame:'Run__006.png'},
-                { key: 'ninja',frame:'Run__007.png'},
-                { key: 'ninja',frame:'Run__008.png'},
-                { key: 'ninja',frame:'Run__009.png'},
+                { key: 'ninja-run',frame:"Run__000.png"},
+                { key: 'ninja-run',frame:"Run__001.png"},
+                { key: 'ninja-run',frame:'Run__002.png'},
+                { key: 'ninja-run',frame:'Run__003.png'},
+                { key: 'ninja-run',frame:'Run__004.png'},
+                { key: 'ninja-run',frame:'Run__005.png'},
+                { key: 'ninja-run',frame:'Run__006.png'},
+                { key: 'ninja-run',frame:'Run__007.png'},
+                { key: 'ninja-run',frame:'Run__008.png'},
+                { key: 'ninja-run',frame:'Run__009.png'},
             ],
             frameRate: 20,
             repeat: -1
@@ -56,7 +56,7 @@ export class Game extends Scene {
         const player = this.add.sprite(200, 400, 'ninja-run').setScale(1);
 
         // Play the 'run' animation
-        player.anims.play('run');
+        player.anims.play('ninja-run');
         EventBus.emit('current-scene-ready', this);
     }
 
