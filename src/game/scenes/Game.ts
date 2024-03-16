@@ -1,5 +1,6 @@
 import { EventBus } from '../EventBus';
 import { Scene } from 'phaser';
+import pickRandomWord from '../../utils/randomWords.ts';
 
 export class Game extends Scene {
     camera: Phaser.Cameras.Scene2D.Camera;
@@ -38,27 +39,68 @@ export class Game extends Scene {
             repeat: -1
         });
 
-        var frameNames = this.textures.get('ninja').getFrameNames();
-        console.log(frameNames);
         this.camera = this.cameras.main;
-        this.camera.setBackgroundColor(0x00ff00);
 
-        this.background = this.add.image(512, 384, 'background');
-        this.background.setAlpha(0.5);
-        /**
-        this.gameText = this.add.text(512, 384, 'Make something fun!\nand share it with us:\nsupport@phaser.io', {
-            fontFamily: 'Arial Black', fontSize: 38, color: '#ffffff',
-            stroke: '#000000', strokeThickness: 8,
-            align: 'center'
-        }).setOrigin(0.5).setDepth(100);
-        */
-        // Add a sprite that uses the animation
-        const player = this.add.sprite(200, 400, 'ninja-run').setScale(1);
+        this.background = this.add.image(window.innerWidth / 2, window.innerHeight / 2, 'background');
+        const player = this.add.sprite(200, window.innerHeight - 200, 'ninja-run').setScale(0.4);
 
         // Play the 'run' animation
         player.anims.play('ninja-run');
+
+        const word = pickRandomWord();
+
+        // Create a text object with the word at the right edge of the screen
+        let text = this.add.text(this.scale.width, 100, word, {
+            font: '40px Arial',
+            fill: '#ffffff'
+        });
+
+        // Set the origin of the text to its center
+        text.setOrigin(0.5, 0.5);
+
+        // Move the text from right to left
+        const tween = this.tweens.add({
+            targets: text,
+            x: -text.width, // move it to the left beyond its width so it completely disappears
+            ease: 'Linear', // linear movement
+            duration: 10000, // duration of the movement, adjust as needed
+            repeat: 0, // no repeat
+            onComplete: function () {
+                text.destroy(); // destroy the text object once it's off screen
+            }
+        });
+        // Track user's input
+        let userInput = '';
+        this.input.keyboard!.on('keydown', (event) => {
+            userInput += event.key;
+            if (word.toLowerCase().startsWith(userInput.toLowerCase())) {
+                const matchedPart = word.substring(0, userInput.length);
+                const remainingPart = word.substring(userInput.length);
+                text.setText(`[color green]${matchedPart}[/color]${remainingPart}`);
+            }
+
+            // Check if the typed word matches the displayed word
+            if (userInput.toLowerCase() === word.toLowerCase()) {
+                // Stop the text from moving
+                tween.stop();
+
+                // Fade out the text and destroy it
+                this.tweens.add({
+                    targets: text,
+                    alpha: 0,
+                    ease: 'Linear',
+                    duration: 500,
+                    onComplete: function () {
+                        text.destroy();
+                    }
+                });
+
+                // Reset userInput for the next word
+                userInput = '';
+            }
+        });
         EventBus.emit('current-scene-ready', this);
-    }
+    }   
 
     changeScene () {
         this.scene.start('GameOver');
