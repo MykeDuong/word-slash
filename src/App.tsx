@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { IRefPhaserGame, PhaserGame } from './game/PhaserGame';
 import { MainMenu } from './game/scenes/MainMenu';
+import pickRandomWord from '../random_words.ts';
 
 function App()
 {
@@ -11,6 +12,8 @@ function App()
     const phaserRef = useRef<IRefPhaserGame | null>(null);
     const [spritePosition, setSpritePosition] = useState({ x: 0, y: 0 });
 
+    const randomWord = pickRandomWord('../data/5-letter words.txt');
+    console.log(randomWord);
     const changeScene = () => {
 
         if(phaserRef.current)
