@@ -2,6 +2,7 @@ import { EventBus } from '../EventBus';
 import { Scene } from 'phaser';
 import pickRandomWord from '../../utils/randomWords.ts';
 import Word from '../../components/Word.ts';
+import Score from '../../components/Score.ts';
 import HealthBar from '../../components/HealthBar.ts';
 
 
@@ -10,7 +11,9 @@ export class Game extends Scene {
     background: Phaser.GameObjects.Image;
     gameText: Phaser.GameObjects.Text;
     words: Word[];
+    score: Score;
     sprite_list: Phaser.GameObjects.Sprite[] = [];
+
 
     sprite: Phaser.GameObjects.Sprite;
     player: Phaser.GameObjects.Sprite;
@@ -177,16 +180,19 @@ export class Game extends Scene {
 
         // Add a sprite that uses the animation
         this.player = this.add.sprite(this.Player_Pos.x, this.Player_Pos.y, 'ninja-run').setScale(0.4);
+
         // Play the 'run' animation
         this.player.anims.play('ninja-run');
 
         // Health bar
         this.healthbar = new HealthBar(this)
 
+        // Score
+        this.score = new Score(this, window.innerWidth-200, 30, { color: '#FFFFFF', fontSize: '32px', fontStyle: 'bold' });
 
         // Track user's input
 
-        this.add.text(
+        this.add.text( 
             window.innerWidth / 2,
             window.innerHeight - 200,
             this.inputString,
@@ -247,10 +253,11 @@ export class Game extends Scene {
                         this.teleportToTarget(word.x, word.y);
                         setTimeout(() => this.player.anims.play('ninja-jump-attack')
                             .on("animationcomplete", () => {
+                                this.dash_to_target = false;
                                 word.playAnimation('cloud-1').on("animationcomplete", () => {
                                     word.destroyNew();
                                 })
-
+                                this.score.increaseScore(1);
                                 this.dash_to_target = false;
                                 //return to original motion
                                 this.player.anims.play('ninja-run');
@@ -264,9 +271,11 @@ export class Game extends Scene {
                         this.teleportToTarget(word.x, word.y);
                         setTimeout(() => this.player.anims.play('ninja-jump-attack')
                             .on("animationcomplete", () => {
+                                this.dash_to_target = false;
                                 word.playAnimation('cloud-1').on("animationcomplete", () => {
                                     word.destroyNew();
                                 })
+                                this.score.increaseScore(1);
                                 this.dash_to_target = false;
                                 //return to original motion
                                 this.player.anims.play('ninja-run');
