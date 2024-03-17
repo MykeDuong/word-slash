@@ -9,10 +9,12 @@ export default class Word extends Phaser.GameObjects.Container {
     private onAir: boolean = false;
     scene: Phaser.Scene;
     toBeDestroyed: boolean = false
+    onOutOfScreen: () => void
 
-    constructor(scene: Phaser.Scene, word: string, x: number, y: number, onAir: boolean) {
+    constructor(scene: Phaser.Scene, word: string, x: number, y: number, onAir: boolean, onOutOfScreen: () => void) {
         super(scene, x, y);
         this.word = word;
+        this.onOutOfScreen = onOutOfScreen;
         this.scene = scene;
         this.onAir = onAir;
         let yOffset = 0;
@@ -29,7 +31,7 @@ export default class Word extends Phaser.GameObjects.Container {
         this.add(this.remainingText);
 
         if (!onAir) {
-            yOffset = 100;
+            yOffset = 450;
             this.y = this.y + yOffset;
         }
         // Move the word from right to left
@@ -38,7 +40,10 @@ export default class Word extends Phaser.GameObjects.Container {
             x: -this.width, // Move off screen to the left
             duration: (scene.scale.width + this.width) / this.velocity * 1000,
             ease: 'Linear',
-            onComplete: () => { this.destroy() }
+            onComplete: () => { 
+                this.destroy()
+                onOutOfScreen() 
+            }
         });
 
         this.setupAnimations();
@@ -56,6 +61,11 @@ export default class Word extends Phaser.GameObjects.Container {
             frameRate: 10,
             repeat: 0
         });
+    }
+
+    updateVelocity(speed: number){
+        this.velocity = this.velocity*speed;
+        this.tween.updateTo('duration', (this.scene.scale.width + this.width) / this.velocity * 1000);
     }
 
     canDestroy(input: boolean) {

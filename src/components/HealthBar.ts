@@ -4,6 +4,7 @@ export default class HealthBar {
     private currentHealth: number;
     private graphics: Phaser.GameObjects.Graphics;
     private backgroundGraphics: Phaser.GameObjects.Graphics;
+    private borderGraphics: Phaser.GameObjects.Graphics;
 
     constructor(scene: Phaser.Scene) {
         this.scene = scene;
@@ -19,6 +20,11 @@ export default class HealthBar {
         this.graphics = this.scene.add.graphics();
         this.graphics.fillStyle(0xff0000, 1);
         this.graphics.fillRect(10, 10, 200, 20);
+
+        // Border of the health bar
+        this.borderGraphics = this.scene.add.graphics();
+        this.borderGraphics.lineStyle(2, 0xffffff, 1); // White border with 2 pixel thickness
+        this.borderGraphics.strokeRect(10, 10, 200, 20);
     }
 
     public decreaseHealth(amount: number): void {
@@ -31,5 +37,9 @@ export default class HealthBar {
         this.graphics.clear();
         this.graphics.fillStyle(0xff0000, 1);
         this.graphics.fillRect(10, 10, 200 * healthPercentage, 20);
+        // Re-draw the border to ensure it's always visible
+        this.borderGraphics.clear();
+        this.borderGraphics.lineStyle(2, 0xffffff, 1);
+        this.borderGraphics.strokeRect(10, 10, 200, 20);
     }
 }
