@@ -2,6 +2,8 @@ import { EventBus } from '../EventBus';
 import { Scene } from 'phaser';
 import pickRandomWord from '../../utils/randomWords.ts';
 import Word from '../../components/Word.ts';
+import HealthBar from '../../components/HealthBar.ts';
+
 
 export class Game extends Scene {
     camera: Phaser.Cameras.Scene2D.Camera;
@@ -22,6 +24,9 @@ export class Game extends Scene {
     onKeyDown: boolean = false;
     onJumpUp: boolean = false;
     onJumpDown: boolean = false;
+    healthbar: HealthBar
+    backdrop: Phaser.GameObjects.TileSprite
+
 
     readonly Player_Pos = { x: 200, y: 600 };
     readonly Min_Jump_Height = 500
@@ -161,7 +166,8 @@ export class Game extends Scene {
         });
         this.camera = this.cameras.main;
 
-        this.background = this.add.image(window.innerWidth / 2, window.innerHeight / 2, 'background');
+        this.backdrop = this.add.tileSprite(0, 0, window.innerWidth, window.innerHeight, 'dark-forest')
+            .setOrigin(0, 0)
 
         // Finish creating animations
 
@@ -172,6 +178,10 @@ export class Game extends Scene {
         this.player = this.add.sprite(this.Player_Pos.x, this.Player_Pos.y, 'ninja-run').setScale(0.4);
         // Play the 'run' animation
         this.player.anims.play('ninja-run');
+
+        // Health bar
+        this.healthbar = new HealthBar(this)
+
 
         // Track user's input
 
@@ -267,6 +277,7 @@ export class Game extends Scene {
                 }
             }
         }
+        this.inputString = ""
     }
 
     teleportToTarget(x: number, y: number) {
@@ -277,8 +288,12 @@ export class Game extends Scene {
         this.dash_to_target = true;
         console.log(this.dash_to_target);
     }
+
     update() {
-        if (this.dash_to_target && this.player.x <= this.cur_cloud_x && this.player.y >= this.cur_cloud_y) {
+        this.backdrop.tilePositionX += 0.5;
+
+
+        if (this.dash_to_target && this.player.x <= this.cur_cloud_x) {
             this.player.x += this.speed_to_x;
             this.player.y += this.speed_to_y;
             console.log("execute dash");
@@ -304,6 +319,10 @@ export class Game extends Scene {
                     this.onJumpDown = false
                     this.player.anims.play("ninja-run")
                 }
+            }
+
+            if (this.player.y < this.Player_Pos.y && this.onJumpDown === true && this.player.x > this.Player_Pos.x) {
+                this.player.x -= 5;
             }
 
             if (this.player.y < this.Player_Pos.y && this.jump === false) {
