@@ -29,7 +29,7 @@ export default class Word extends Phaser.GameObjects.Container {
         this.add(this.remainingText);
 
         if (!onAir) {
-            yOffset = 300;
+            yOffset = 100;
             this.y = this.y + yOffset;
         }
         // Move the word from right to left

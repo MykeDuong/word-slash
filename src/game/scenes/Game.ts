@@ -166,13 +166,14 @@ export class Game extends Scene {
         });
         this.camera = this.cameras.main;
 
-        this.backdrop = this.add.tileSprite(0, 0, window.innerWidth, window.innerHeight, 'dark-forest')
-            .setOrigin(0, 0)
+        this.backdrop = this.add.tileSprite(0, 0, 0, 0, 'dark-forest').setOrigin(0, 0)
 
-        // Finish creating animations
+        this.add.rectangle(0, 1190, window.innerWidth * 2, 1000, 0x000000),
 
-        // Create a camera
-        this.camera = this.cameras.main;
+            // Finish creating animations
+
+            // Create a camera
+            this.camera = this.cameras.main;
 
         // Add a sprite that uses the animation
         this.player = this.add.sprite(this.Player_Pos.x, this.Player_Pos.y, 'ninja-run').setScale(0.4);
@@ -292,7 +293,6 @@ export class Game extends Scene {
     update() {
         this.backdrop.tilePositionX += 0.5;
 
-
         if (this.dash_to_target && this.player.x <= this.cur_cloud_x) {
             this.player.x += this.speed_to_x;
             this.player.y += this.speed_to_y;
@@ -327,6 +327,9 @@ export class Game extends Scene {
 
             if (this.player.y < this.Player_Pos.y && this.jump === false) {
                 this.player.y += 60;
+                if (this.player.y > this.Player_Pos.y) {
+                    this.player.y = this.Player_Pos.y
+                }
             }
 
             // move back to starting position
@@ -344,7 +347,7 @@ export class Game extends Scene {
     }
     createNewWord() {
         const word = pickRandomWord();
-        let wordText = new Word(this, word, window.innerWidth, window.innerHeight / 2 - 100, this.airOrNot());
+        let wordText = new Word(this, word, window.innerWidth, window.innerHeight / 2 - 400, this.airOrNot());
         this.words.push(wordText);
 
     }
