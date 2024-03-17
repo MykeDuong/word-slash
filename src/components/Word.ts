@@ -20,7 +20,7 @@ export default class Word extends Phaser.GameObjects.Container {
         this.matchedText = scene.add.text(0, yOffset, '', { color: '#0000FF', fontSize: '32px', fontStyle: 'bold' });
         this.remainingText = scene.add.text(0, yOffset, word, { color: '#000000', fontSize: '32px', fontStyle: 'bold' });
 
-        this.sprite = scene.add.sprite(45,5+yOffset, 'cloud-1'); // Create sprite
+        this.sprite = scene.add.sprite(45, 5 + yOffset, 'cloud-1'); // Create sprite
         this.add(this.sprite); // Add sprite to container
 
         scene.add.existing(this);
@@ -30,15 +30,15 @@ export default class Word extends Phaser.GameObjects.Container {
 
         if (!onAir) {
             yOffset = 300;
-            this.y = this.y + yOffset; 
+            this.y = this.y + yOffset;
         }
         // Move the word from right to left
         this.tween = scene.tweens.add({
-            targets: this, 
+            targets: this,
             x: -this.width, // Move off screen to the left
-            duration: (scene.scale.width + this.width) / this.velocity *  1000,
+            duration: (scene.scale.width + this.width) / this.velocity * 1000,
             ease: 'Linear',
-            onComplete: () => {this.destroy()}
+            onComplete: () => { this.destroy() }
         });
 
         this.setupAnimations();
@@ -67,13 +67,13 @@ export default class Word extends Phaser.GameObjects.Container {
     }
 
     inputKey(key: string) {
-        const potentialMatch = this.userInput + key; 
+        const potentialMatch = this.userInput + key;
 
         if (this.word.startsWith(potentialMatch)) {
             this.userInput = potentialMatch;
             this.updateText();
 
-            if (this.userInput === this.word) { 
+            if (this.userInput === this.word) {
                 return [this.x, this.y]
             }
         } else {
@@ -94,7 +94,7 @@ export default class Word extends Phaser.GameObjects.Container {
         this.tween.stop()
     }
 
-    destroyNew(){
+    destroyNew() {
         this.matchedText.destroy();
         this.remainingText.destroy();
         this.removeAll();

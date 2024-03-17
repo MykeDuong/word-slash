@@ -2,13 +2,18 @@ import { EventBus } from '../EventBus';
 import { Scene } from 'phaser';
 import pickRandomWord from '../../utils/randomWords.ts';
 import Word from '../../components/Word.ts';
+import Score from '../../components/Score.ts';
+import HealthBar from '../../components/HealthBar.ts';
+
 
 export class Game extends Scene {
     camera: Phaser.Cameras.Scene2D.Camera;
     background: Phaser.GameObjects.Image;
     gameText: Phaser.GameObjects.Text;
     words: Word[];
+    score: Score;
     sprite_list: Phaser.GameObjects.Sprite[] = [];
+
 
     sprite: Phaser.GameObjects.Sprite;
     player: Phaser.GameObjects.Sprite;
@@ -22,6 +27,9 @@ export class Game extends Scene {
     onKeyDown: boolean = false;
     onJumpUp: boolean = false;
     onJumpDown: boolean = false;
+    healthbar: HealthBar
+    backdrop: Phaser.GameObjects.TileSprite
+
 
     readonly Player_Pos = { x: 200, y: 600 };
     readonly Min_Jump_Height = 500
@@ -42,7 +50,7 @@ export class Game extends Scene {
     }
 
 
-    constructor() { 
+    constructor() {
         super('Game');
         this.words = []
     }
@@ -152,7 +160,7 @@ export class Game extends Scene {
             frameRate: 10,
             repeat: 0
         });
- 
+
         this.time.addEvent({
             callback: this.createNewWord,
             callbackScope: this,
@@ -161,20 +169,29 @@ export class Game extends Scene {
         });
         this.camera = this.cameras.main;
 
-        this.background = this.add.image(window.innerWidth / 2, window.innerHeight / 2, 'background');
+        this.backdrop = this.add.tileSprite(0, 0, window.innerWidth, window.innerHeight, 'dark-forest')
+            .setOrigin(0, 0)
 
         // Finish creating animations
 
         // Create a camera
         this.camera = this.cameras.main;
+
         // Add a sprite that uses the animation
         this.player = this.add.sprite(this.Player_Pos.x, this.Player_Pos.y, 'ninja-run').setScale(0.4);
+
         // Play the 'run' animation
         this.player.anims.play('ninja-run');
 
+        // Health bar
+        this.healthbar = new HealthBar(this)
+
+        // Score
+        this.score = new Score(this, window.innerWidth-200, 30, { color: '#FFFFFF', fontSize: '32px', fontStyle: 'bold' });
+
         // Track user's input
 
-        this.add.text(
+        this.add.text( 
             window.innerWidth / 2,
             window.innerHeight - 200,
             this.inputString,
@@ -197,7 +214,7 @@ export class Game extends Scene {
 
         EventBus.emit('current-scene-ready', this);
     }
-    temp(){
+    temp() {
         this.sprite = this.add.sprite(45, 5, 'cloud-1');
     }
     random(numbers: number[]) {
@@ -228,7 +245,7 @@ export class Game extends Scene {
                     word.stopMoving()
                     this.cur_cloud_x = word.x;
                     this.cur_cloud_y = word.y;
-                    
+
                     if (this.jump) {
                         this.dash_to_target = true;
                         this.player.anims.play('ninja-run');
@@ -237,15 +254,17 @@ export class Game extends Scene {
                             .on("animationcomplete", () => {
                                 this.dash_to_target = false;
                                 word.playAnimation('cloud-1').on("animationcomplete", () => {
-                                    word.destroyNew();})                               
-                                
+                                    word.destroyNew();
+                                })
+                                this.score.increaseScore(1);
+                                this.dash_to_target = false;
                                 //return to original motion
-                                this.player.anims.play('ninja-run'); 
+                                this.player.anims.play('ninja-run');
                                 this.jump = false;
                                 this.onJumpDown = false;
                                 this.onJumpUp = false
                             }), this.dash_time);
-                        
+
                     } else {
                         this.dash_to_target = true;
                         this.teleportToTarget(word.x, word.y);
@@ -253,33 +272,41 @@ export class Game extends Scene {
                             .on("animationcomplete", () => {
                                 this.dash_to_target = false;
                                 word.playAnimation('cloud-1').on("animationcomplete", () => {
-                                word.destroyNew();})
+                                    word.destroyNew();
+                                })
+                                this.score.increaseScore(1);
+                                this.dash_to_target = false;
                                 //return to original motion
                                 this.player.anims.play('ninja-run');
                             }), this.dash_time);
-                        
+
                     }
                     this.inputString = "";
                     return
                 }
             }
         }
+        this.inputString = ""
     }
 
-    teleportToTarget(x:number, y:number){
-        this.dash_time = Math.sqrt((x-this.player.x)*(x-this.player.x) + (y-this.player.y)*(y-this.player.y))/6;
-        this.speed_to_x = (x-this.player.x)*25/this.dash_time;
-        this.speed_to_y = (y-this.player.y)*25/this.dash_time;
+    teleportToTarget(x: number, y: number) {
+        this.dash_time = Math.sqrt((x - this.player.x) * (x - this.player.x) + (y - this.player.y) * (y - this.player.y)) / 6;
+        this.speed_to_x = (x - this.player.x) * 25 / this.dash_time;
+        this.speed_to_y = (y - this.player.y) * 25 / this.dash_time;
         console.log(this.speed_to_x, this.speed_to_y);
-        this.dash_to_target = true; 
-        console.log(this.dash_to_target);  
-    } 
+        this.dash_to_target = true;
+        console.log(this.dash_to_target);
+    }
+
     update() {
-        if(this.dash_to_target && this.player.x <= this.cur_cloud_x){
+        this.backdrop.tilePositionX += 0.5;
+
+
+        if (this.dash_to_target && this.player.x <= this.cur_cloud_x) {
             this.player.x += this.speed_to_x;
             this.player.y += this.speed_to_y;
             console.log("execute dash");
-        } else if(this.dash_to_target){
+        } else if (this.dash_to_target) {
             this.dash_to_target = false;
         } else {
             if (this.jump === true && this.player.y > this.Player_Pos.y - this.Min_Jump_Height) {
@@ -302,9 +329,11 @@ export class Game extends Scene {
                     this.player.anims.play("ninja-run")
                 }
             }
+
             if (this.player.y < this.Player_Pos.y && this.onJumpDown === true && this.player.x > this.Player_Pos.x) {
                 this.player.x -= 5;
             }
+
             if (this.player.y < this.Player_Pos.y && this.jump === false) {
                 this.player.y += 60;
             }
@@ -319,13 +348,13 @@ export class Game extends Scene {
     changeScene() {
         this.scene.start('GameOver');
     }
-    airOrNot(){
+    airOrNot() {
         return Math.round(Math.random()) == 1
     }
     createNewWord() {
         const word = pickRandomWord();
         let wordText = new Word(this, word, window.innerWidth, window.innerHeight / 2 - 100, this.airOrNot());
         this.words.push(wordText);
-        
+
     }
 }
