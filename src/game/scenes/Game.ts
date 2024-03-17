@@ -140,7 +140,6 @@ export class Game extends Scene {
             align: 'center'
         }).setOrigin(0.5).setDepth(100);
         */
-
         // Add a sprite that uses the animation
         this.player = this.add.sprite(200, 400, 'ninja-run').setScale(0.1);
         
@@ -263,7 +262,7 @@ export class Game extends Scene {
         this.cur_cloud_x = this.cloud_list[0].x;
         this.cur_cloud_y = this.cloud_list[0].y;
         // Setting keyboard input
-        this.keyboardInput();
+        // this.keyboardInput();
         // reading keyboard input
         this.gameLogic();
         this.frame_counter += 1;
