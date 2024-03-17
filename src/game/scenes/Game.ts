@@ -8,7 +8,9 @@ export class Game extends Scene {
     background: Phaser.GameObjects.Image;
     gameText: Phaser.GameObjects.Text;
     words: Word[];
+    sprite_list: Phaser.GameObjects.Sprite[] = [];
 
+    sprite: Phaser.GameObjects.Sprite;
     player: Phaser.GameObjects.Sprite;
     cloud: Phaser.GameObjects.Sprite;
     cloud_list: Phaser.GameObjects.Sprite[] = [];
@@ -21,12 +23,16 @@ export class Game extends Scene {
     onJumpUp: boolean = false;
     onJumpDown: boolean = false;
 
-    readonly Player_Pos = { x: 200, y: 700 };
+    readonly Player_Pos = { x: 200, y: 600 };
     readonly Min_Jump_Height = 500
     readonly Char_Arr: string[] = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '-'];
 
     cur_cloud_x: number = 0;
     cur_cloud_y: number = 0;
+    speed_to_x: number = 0;
+    speed_to_y: number = 0;
+    dash_to_target: boolean = false;
+    dash_time: number = 500;
     preload() {
         this.load.atlas('ninja-run', 'assets/ninja-run.png', 'assets/ninja-run.json');
         this.load.atlas('ninja-jump', 'assets/ninja-jump.png', 'assets/ninja-jump.json');
@@ -36,7 +42,7 @@ export class Game extends Scene {
     }
 
 
-    constructor() {
+    constructor() { 
         super('Game');
         this.words = []
     }
@@ -144,16 +150,15 @@ export class Game extends Scene {
                 { key: 'cloud-1', frame: 'cloud_shape3_4.png' }
             ],
             frameRate: 10,
-            repeat: 1
+            repeat: 0
         });
-
+ 
         this.time.addEvent({
             callback: this.createNewWord,
             callbackScope: this,
             delay: 2000, // 1000 = 1 second
             loop: true
         });
-
         this.camera = this.cameras.main;
 
         this.background = this.add.image(window.innerWidth / 2, window.innerHeight / 2, 'background');
@@ -164,7 +169,6 @@ export class Game extends Scene {
         this.camera = this.cameras.main;
         // Add a sprite that uses the animation
         this.player = this.add.sprite(this.Player_Pos.x, this.Player_Pos.y, 'ninja-run').setScale(0.4);
-
         // Play the 'run' animation
         this.player.anims.play('ninja-run');
 
@@ -193,7 +197,9 @@ export class Game extends Scene {
 
         EventBus.emit('current-scene-ready', this);
     }
-
+    temp(){
+        this.sprite = this.add.sprite(45, 5, 'cloud-1');
+    }
     random(numbers: number[]) {
         return numbers[Math.floor(Math.random() * numbers.length)];
     }
@@ -216,31 +222,42 @@ export class Game extends Scene {
         } else {
             for (const word of this.words) {
                 if (word.toBeDestroyed) continue
+                if (!word.canDestroy(this.jump)) continue;
                 if (word.checkComplete(this.inputString)) {
                     word.toBeDestroyed = true
                     word.stopMoving()
+                    this.cur_cloud_x = word.x;
+                    this.cur_cloud_y = word.y;
+                    
                     if (this.jump) {
-                        this.player.x = word.x;
-                        this.player.y = word.y;
-                        this.player.anims.play('ninja-jump-attack')
+                        this.dash_to_target = true;
+                        this.player.anims.play('ninja-run');
+                        this.teleportToTarget(word.x, word.y);
+                        setTimeout(() => this.player.anims.play('ninja-jump-attack')
                             .on("animationcomplete", () => {
-                                word.destroy()
+                                word.playAnimation('cloud-1').on("animationcomplete", () => {
+                                    word.destroyNew();})                               
+                                
+                                this.dash_to_target = false;
                                 //return to original motion
-                                this.player.anims.play('ninja-run');
+                                this.player.anims.play('ninja-run'); 
                                 this.jump = false;
                                 this.onJumpDown = false;
                                 this.onJumpUp = false
-                            })
-
+                            }), this.dash_time);
+                        
                     } else {
-                        this.player.x = word.x;
-                        this.player.y = word.y;
-                        this.player.anims.play('ninja-jump-attack')
+                        this.dash_to_target = true;
+                        this.teleportToTarget(word.x, word.y);
+                        setTimeout(() => this.player.anims.play('ninja-jump-attack')
                             .on("animationcomplete", () => {
-                                word.destroy()
+                                word.playAnimation('cloud-1').on("animationcomplete", () => {
+                                word.destroyNew();})
+                                this.dash_to_target = false; 
                                 //return to original motion
                                 this.player.anims.play('ninja-run');
-                            })
+                            }), this.dash_time);
+                        
                     }
                     this.inputString = "";
                     return
@@ -249,46 +266,64 @@ export class Game extends Scene {
         }
     }
 
+    teleportToTarget(x:number, y:number){
+        this.dash_time = Math.sqrt((x-this.player.x)*(x-this.player.x) + (y-this.player.y)*(y-this.player.y))/6;
+        this.speed_to_x = (x-this.player.x)*25/this.dash_time;
+        this.speed_to_y = (y-this.player.y)*25/this.dash_time;
+        console.log(this.speed_to_x, this.speed_to_y);
+        this.dash_to_target = true; 
+        console.log(this.dash_to_target);  
+    } 
     update() {
-        if (this.jump === true && this.player.y > this.Player_Pos.y - this.Min_Jump_Height) {
-            if (this.onJumpUp) {
-                this.player.y -= 50
-                if (this.player.y <= this.Player_Pos.y - this.Min_Jump_Height) {
-                    this.onJumpDown = true
-                    this.onJumpUp = false
-                    this.player.anims.play("ninja-glide")
+        if(this.dash_to_target && this.player.x <= this.cur_cloud_x && this.player.y >= this.cur_cloud_y){
+            this.player.x += this.speed_to_x;
+            this.player.y += this.speed_to_y;
+            console.log("execute dash");
+        } else if(this.dash_to_target){
+            this.dash_to_target = false;
+        } else {
+            if (this.jump === true && this.player.y > this.Player_Pos.y - this.Min_Jump_Height) {
+                if (this.onJumpUp) {
+                    this.player.y -= 50
+                    if (this.player.y <= this.Player_Pos.y - this.Min_Jump_Height) {
+                        this.onJumpDown = true
+                        this.onJumpUp = false
+                        this.player.anims.play("ninja-glide")
+                    }
                 }
             }
-        }
 
-        if (this.jump === true && this.onJumpDown === true && this.player.y <= this.Player_Pos.y) {
-            this.player.y += 5
-            if (this.player.y >= this.Player_Pos.y) {
-                this.player.y = this.Player_Pos.y
-                this.jump = false
-                this.onJumpDown = false
-                this.player.anims.play("ninja-run")
+            if (this.jump === true && this.onJumpDown === true && this.player.y <= this.Player_Pos.y) {
+                this.player.y += 5
+                if (this.player.y >= this.Player_Pos.y) {
+                    this.player.y = this.Player_Pos.y
+                    this.jump = false
+                    this.onJumpDown = false
+                    this.player.anims.play("ninja-run")
+                }
             }
-        }
 
+            if (this.player.y < this.Player_Pos.y && this.jump === false) {
+                this.player.y += 60;
+            }
 
-        if (this.player.y < this.Player_Pos.y && this.jump === false) {
-            this.player.y += 60;
-        }
-
-        // move back to starting position
-        if (this.player.x > this.Player_Pos.x && this.jump === false) {
-            this.player.x -= 10;
+            // move back to starting position
+            if (this.player.x > this.Player_Pos.x && this.jump === false) {
+                this.player.x -= 10;
+            }
         }
     }
 
     changeScene() {
         this.scene.start('GameOver');
     }
-
+    airOrNot(){
+        return Math.round(Math.random()) == 1
+    }
     createNewWord() {
         const word = pickRandomWord();
-
-        this.words.push(new Word(this, word, window.innerWidth, window.innerHeight / 2))
+        let wordText = new Word(this, word, window.innerWidth, window.innerHeight / 2 - 100, this.airOrNot());
+        this.words.push(wordText);
+        
     }
 }
