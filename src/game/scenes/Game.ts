@@ -235,10 +235,10 @@ export class Game extends Scene {
                         this.teleportToTarget(word.x, word.y);
                         setTimeout(() => this.player.anims.play('ninja-jump-attack')
                             .on("animationcomplete", () => {
+                                this.dash_to_target = false;
                                 word.playAnimation('cloud-1').on("animationcomplete", () => {
                                     word.destroyNew();})                               
                                 
-                                this.dash_to_target = false;
                                 //return to original motion
                                 this.player.anims.play('ninja-run'); 
                                 this.jump = false;
@@ -251,9 +251,9 @@ export class Game extends Scene {
                         this.teleportToTarget(word.x, word.y);
                         setTimeout(() => this.player.anims.play('ninja-jump-attack')
                             .on("animationcomplete", () => {
+                                this.dash_to_target = false;
                                 word.playAnimation('cloud-1').on("animationcomplete", () => {
                                 word.destroyNew();})
-                                this.dash_to_target = false; 
                                 //return to original motion
                                 this.player.anims.play('ninja-run');
                             }), this.dash_time);
@@ -275,7 +275,7 @@ export class Game extends Scene {
         console.log(this.dash_to_target);  
     } 
     update() {
-        if(this.dash_to_target && this.player.x <= this.cur_cloud_x && this.player.y >= this.cur_cloud_y){
+        if(this.dash_to_target && this.player.x <= this.cur_cloud_x){
             this.player.x += this.speed_to_x;
             this.player.y += this.speed_to_y;
             console.log("execute dash");
@@ -302,7 +302,9 @@ export class Game extends Scene {
                     this.player.anims.play("ninja-run")
                 }
             }
-
+            if (this.player.y < this.Player_Pos.y && this.onJumpDown === true && this.player.x > this.Player_Pos.x) {
+                this.player.x -= 5;
+            }
             if (this.player.y < this.Player_Pos.y && this.jump === false) {
                 this.player.y += 60;
             }
