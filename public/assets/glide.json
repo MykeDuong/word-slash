@@ -1,0 +1,92 @@
+{"frames": [
+
+{
+	"filename": "Glide_000.png",
+	"frame": {"x":0,"y":0,"w":443,"h":454},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":443,"h":454},
+	"sourceSize": {"w":443,"h":454}
+},
+{
+	"filename": "Glide_001.png",
+	"frame": {"x":443,"y":0,"w":443,"h":454},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":443,"h":454},
+	"sourceSize": {"w":443,"h":454}
+},
+{
+	"filename": "Glide_002.png",
+	"frame": {"x":886,"y":0,"w":443,"h":454},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":443,"h":454},
+	"sourceSize": {"w":443,"h":454}
+},
+{
+	"filename": "Glide_003.png",
+	"frame": {"x":1329,"y":0,"w":443,"h":454},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":443,"h":454},
+	"sourceSize": {"w":443,"h":454}
+},
+{
+	"filename": "Glide_004.png",
+	"frame": {"x":0,"y":454,"w":443,"h":454},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":443,"h":454},
+	"sourceSize": {"w":443,"h":454}
+},
+{
+	"filename": "Glide_005.png",
+	"frame": {"x":443,"y":454,"w":443,"h":454},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":443,"h":454},
+	"sourceSize": {"w":443,"h":454}
+},
+{
+	"filename": "Glide_006.png",
+	"frame": {"x":886,"y":454,"w":443,"h":454},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":443,"h":454},
+	"sourceSize": {"w":443,"h":454}
+},
+{
+	"filename": "Glide_007.png",
+	"frame": {"x":1329,"y":454,"w":443,"h":454},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":443,"h":454},
+	"sourceSize": {"w":443,"h":454}
+},
+{
+	"filename": "Glide_008.png",
+	"frame": {"x":0,"y":908,"w":443,"h":454},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":443,"h":454},
+	"sourceSize": {"w":443,"h":454}
+},
+{
+	"filename": "Glide_009.png",
+	"frame": {"x":443,"y":908,"w":443,"h":454},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":443,"h":454},
+	"sourceSize": {"w":443,"h":454}
+}],
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "glide.png",
+	"format": "RGBA8888",
+	"size": {"w":1772,"h":1362},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:8990bf16fe209214712cdb6dc9bb06c2:eb9417fde355547f3978fce047ed481d:0dd2b6a47d0b36c44a6b42b962da99d9$"
+}
+}
