@@ -163,6 +163,8 @@ export class Game extends Scene {
         // Create a camera
         this.camera = this.cameras.main;
 
+
+
         // Add a sprite that uses the animation
         this.player = this.add.sprite(this.Player_Pos.x, this.Player_Pos.y, 'ninja-run').setScale(0.4);
 
