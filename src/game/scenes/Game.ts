@@ -13,6 +13,8 @@ export class Game extends Scene {
     words: Word[];
     score: Score;
     sprite_list: Phaser.GameObjects.Sprite[] = [];
+    worldSpeed: number = 1;
+    frameCounter: number = 0;
 
 
     sprite: Phaser.GameObjects.Sprite;
@@ -191,7 +193,7 @@ export class Game extends Scene {
 
         // Track user's input
 
-        this.add.text( 
+        this.add.text(  
             window.innerWidth / 2,
             window.innerHeight - 200,
             this.inputString,
@@ -232,15 +234,18 @@ export class Game extends Scene {
     }
 
     private handleSpace() {
+        
         if (this.inputString === '-') {
             this.inputString = ""
             this.jump = true;
             this.onJumpUp = true;
         } else {
+            this.score.increaseEntry();
             for (const word of this.words) {
                 if (word.toBeDestroyed) continue
                 if (!word.canDestroy(this.jump)) continue;
                 if (word.checkComplete(this.inputString)) {
+                    this.score.increaseScore(1);
                     word.toBeDestroyed = true
                     word.stopMoving()
                     this.cur_cloud_x = word.x;
@@ -256,7 +261,6 @@ export class Game extends Scene {
                                 word.playAnimation('cloud-1').on("animationcomplete", () => {
                                     word.destroyNew();
                                 })
-                                this.score.increaseScore(1);
                                 this.dash_to_target = false;
                                 //return to original motion
                                 this.player.anims.play('ninja-run');
@@ -274,7 +278,6 @@ export class Game extends Scene {
                                 word.playAnimation('cloud-1').on("animationcomplete", () => {
                                     word.destroyNew();
                                 })
-                                this.score.increaseScore(1);
                                 this.dash_to_target = false;
                                 //return to original motion
                                 this.player.anims.play('ninja-run');
@@ -301,7 +304,6 @@ export class Game extends Scene {
     update() {
         this.backdrop.tilePositionX += 0.5;
 
-
         if (this.dash_to_target && this.player.x <= this.cur_cloud_x) {
             this.player.x += this.speed_to_x;
             this.player.y += this.speed_to_y;
@@ -311,7 +313,7 @@ export class Game extends Scene {
         } else {
             if (this.jump === true && this.player.y > this.Player_Pos.y - this.Min_Jump_Height) {
                 if (this.onJumpUp) {
-                    this.player.y -= 50
+                    this.player.y -= 50*this.worldSpeed
                     if (this.player.y <= this.Player_Pos.y - this.Min_Jump_Height) {
                         this.onJumpDown = true
                         this.onJumpUp = false
@@ -321,7 +323,7 @@ export class Game extends Scene {
             }
 
             if (this.jump === true && this.onJumpDown === true && this.player.y <= this.Player_Pos.y) {
-                this.player.y += 5
+                this.player.y += 5*this.worldSpeed;
                 if (this.player.y >= this.Player_Pos.y) {
                     this.player.y = this.Player_Pos.y
                     this.jump = false
@@ -331,17 +333,22 @@ export class Game extends Scene {
             }
 
             if (this.player.y < this.Player_Pos.y && this.onJumpDown === true && this.player.x > this.Player_Pos.x) {
-                this.player.x -= 5;
+                this.player.x -= 5*this.worldSpeed;
             }
 
             if (this.player.y < this.Player_Pos.y && this.jump === false) {
-                this.player.y += 60;
+                this.player.y += 60*this.worldSpeed;
             }
 
             // move back to starting position
             if (this.player.x > this.Player_Pos.x && this.jump === false) {
-                this.player.x -= 10;
+                this.player.x -= 10*this.worldSpeed;
             }
+        }
+
+        // adjusting world speed
+        if (this.score.getScore()%1 === 0){
+            this.worldSpeed = 1 + this.score.getScore()/100;
         }
     }
 

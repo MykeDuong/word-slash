@@ -58,6 +58,11 @@ export default class Word extends Phaser.GameObjects.Container {
         });
     }
 
+    updateVelocity(speed: number){
+        this.velocity = this.velocity*speed;
+        this.tween.updateTo('duration', (this.scene.scale.width + this.width) / this.velocity * 1000);
+    }
+
     canDestroy(input: boolean) {
         return this.onAir == input
     }
