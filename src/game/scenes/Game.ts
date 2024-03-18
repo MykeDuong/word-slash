@@ -33,7 +33,7 @@ export class Game extends Scene {
     healthbar: HealthBar
     backdrop: Phaser.GameObjects.TileSprite
 
-    readonly Player_Pos = { x: 200, y: 600 };
+    readonly Player_Pos = { x: 200, y: window.innerHeight - 300 };
     readonly Min_Jump_Height = 500
     readonly Alphabet: string[] = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
 
@@ -177,7 +177,7 @@ export class Game extends Scene {
         this.camera = this.cameras.main;
 
         // Ground + current word
-        this.add.rectangle(0, 1190, window.innerWidth * 2, 1000, 0x000000);
+        this.add.rectangle(0, window.innerHeight + 200, window.innerWidth * 2, 1000, 0x000000);
 
         // Create the text object and add it to the scene
         this.inputString = new InputString(this, "")
@@ -218,10 +218,19 @@ export class Game extends Scene {
     private handleBackSpace() {
         if (this.inputString.getInput().length === 0) return
         this.inputString.setInput(this.inputString.getInput().slice(0, -1))
+        for (const word of this.words) {
+            if(!word.canDestroy(this.jump)) continue;
+            word.updateText();
+        }
     }
 
     private handleAlphabet(ch: string) {
+
         this.inputString.setInput(this.inputString.getInput() + ch);
+        for (const word of this.words) {
+            if(!word.canDestroy(this.jump)) continue;
+            word.updateText();
+        }
         // TODO: Update Word
     }
 
@@ -232,9 +241,14 @@ export class Game extends Scene {
 
     private handleEnter() {
         this.score.increaseEntry();
+        this.inputString.reset()
+        for (const word of this.words) {
+            if(!word.canDestroy(this.jump)) continue;
+            word.updateText();
+        }
         for (const word of this.words) {
             if (word.toBeDestroyed) continue
-            if (!word.canDestroy(this.jump)) continue;
+            !word.canDestroy(this.jump)
             if (word.checkComplete(this.inputString.getInput())) {
                 this.score.increaseScore(1);
                 word.toBeDestroyed = true
@@ -279,7 +293,7 @@ export class Game extends Scene {
                 return
             }
         }
-        this.inputString.reset()
+
     }
 
     teleportToTarget(x: number, y: number) {
@@ -313,7 +327,7 @@ export class Game extends Scene {
             }
 
             if (this.jump === true && this.onJumpDown === true && this.player.y <= this.Player_Pos.y) {
-                this.player.y += 5*this.worldSpeed;
+                this.player.y += window.innerHeight*2/1000*this.worldSpeed;
                 if (this.player.y >= this.Player_Pos.y) {
                     this.player.y = this.Player_Pos.y
                     this.jump = false
