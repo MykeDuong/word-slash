@@ -2,6 +2,8 @@
 
 Welcome to **Word Slash**, a fast-paced side-scrolling game where you play as a ninja slashing through clouds of words. Type the correct words and jump high to slash the clouds before they reach you!
 
+This project is a submission product for the UA Hackathon.
+
 ## Getting Started
 
 ### Prerequisites
@@ -14,18 +16,24 @@ Before you begin, ensure you have [Node.js](https://nodejs.org/) and npm (Node P
 
    Open your terminal and run the following command to clone the game repository:
 
-    `https://github.com/MykeDuong/word-slash.git`
+    ```
+    git clone https://github.com/MykeDuong/word-slash.git
+    ```
 
 2. **Install Dependencies**
 
     Navigate to the game directory and install the necessary packages:
-    `cd word-slash`
-    `npm install`
+    ```
+    cd word-slash
+    npm install
+    ```
 
 3. **Run the Development Server**
 
     Start the development server to play the game locally:
-    `npm run dev`
+    ```
+    npm run dev
+    ```
 
 This will start the game on `http://localhost:8080` (or another port if 8080 is in use, e.g. 8081).
 
