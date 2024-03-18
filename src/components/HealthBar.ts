@@ -1,12 +1,14 @@
+import { Game } from "../game/scenes/Game";
+
 export default class HealthBar {
-    private scene: Phaser.Scene;
+    private scene: Game;
     private totalHealth: number;
     private currentHealth: number;
     private graphics: Phaser.GameObjects.Graphics;
     private backgroundGraphics: Phaser.GameObjects.Graphics;
     private borderGraphics: Phaser.GameObjects.Graphics;
 
-    constructor(scene: Phaser.Scene) {
+    constructor(scene: Game) {
         this.scene = scene;
         this.totalHealth = 100;
         this.currentHealth = 100;
@@ -30,6 +32,9 @@ export default class HealthBar {
     public decreaseHealth(amount: number): void {
         this.currentHealth = Math.max(0, this.currentHealth - amount);
         this.updateHealthBar();
+        if (this.currentHealth === 0) {
+            this.scene.changeScene()
+        }
     }
 
     private updateHealthBar(): void {

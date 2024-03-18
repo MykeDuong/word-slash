@@ -4,6 +4,7 @@ import pickRandomWord from '../../utils/randomWords.ts';
 import Word from '../../components/Word.ts';
 import Score from '../../components/Score.ts';
 import HealthBar from '../../components/HealthBar.ts';
+import InputString from '../../components/InputString.ts';
 
 
 export class Game extends Scene {
@@ -24,7 +25,7 @@ export class Game extends Scene {
     current_word: string = "spring";
     frame_counter: number = 0;
     jump: boolean = false; //manage jump state of ninja
-    inputString: string = ""; //manahe input string
+    inputString: InputString; //manage input string
     spacebar_pressed: boolean = false;
     onKeyDown: boolean = false;
     onJumpUp: boolean = false;
@@ -32,10 +33,9 @@ export class Game extends Scene {
     healthbar: HealthBar
     backdrop: Phaser.GameObjects.TileSprite
 
-
     readonly Player_Pos = { x: 200, y: 600 };
     readonly Min_Jump_Height = 500
-    readonly Char_Arr: string[] = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '-'];
+    readonly Alphabet: string[] = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
 
     cur_cloud_x: number = 0;
     cur_cloud_y: number = 0;
@@ -171,14 +171,16 @@ export class Game extends Scene {
         });
         this.camera = this.cameras.main;
 
-        this.backdrop = this.add.tileSprite(0, 0, 0, 0, 'dark-forest').setOrigin(0, 0)
+        this.backdrop = this.add.tileSprite(0, 0, 5167, 2903, 'dark-forest').setOrigin(0, 0)
 
-        this.add.rectangle(0, 1190, window.innerWidth * 2, 1000, 0x000000),
+        // Create a camera
+        this.camera = this.cameras.main;
 
-            // Finish creating animations
+        // Ground + current word
+        this.add.rectangle(0, 1190, window.innerWidth * 2, 1000, 0x000000);
 
-            // Create a camera
-            this.camera = this.cameras.main;
+        // Create the text object and add it to the scene
+        this.inputString = new InputString(this, "")
 
         // Add a sprite that uses the animation
         this.player = this.add.sprite(this.Player_Pos.x, this.Player_Pos.y, 'ninja-run').setScale(0.4);
@@ -190,28 +192,17 @@ export class Game extends Scene {
         this.healthbar = new HealthBar(this)
 
         // Score
-        this.score = new Score(this, window.innerWidth-200, 30, { color: '#FFFFFF', fontSize: '32px', fontStyle: 'bold' });
-
-        // Track user's input
-
-        this.add.text(  
-            window.innerWidth / 2,
-            window.innerHeight - 200,
-            this.inputString,
-            { color: '#0000FF', fontSize: '32px', fontStyle: 'bold' }
-        )
+        this.score = new Score(this, window.innerWidth-200, 30, { color: '#FFFFFF', fontSize: '32px', fontStyle: 'bold' })
 
         this.input.keyboard!.on('keydown', (event) => {
+            console.log(typeof(event))
             if (this.onKeyDown === true) return;
             this.onKeyDown = true
             console.log(event.key)
             if (event.key === " ") this.handleSpace();
-            if (this.Char_Arr.includes(event.key)) {
-                this.handleAlphabet(event.key)
-            }
-            if (event.key === "Backspace") this.handleBackSpace()
-            if (event.key === "Delete") this.inputString = ""
-            console.log(this.inputString);
+            else if (event.key === "Enter") this.handleEnter();
+            else if (this.Alphabet.includes(event.key)) { this.handleAlphabet(event.key) }
+            else if (event.key === "Backspace") this.handleBackSpace()
             this.onKeyDown = false
         });
 
@@ -225,72 +216,70 @@ export class Game extends Scene {
     }
 
     private handleBackSpace() {
-        if (this.inputString.length === 0) return
-        this.inputString = this.inputString.slice(0, -1)
+        if (this.inputString.getInput().length === 0) return
+        this.inputString.setInput(this.inputString.getInput().slice(0, -1))
     }
 
     private handleAlphabet(ch: string) {
-        this.inputString += ch;
+        this.inputString.setInput(this.inputString.getInput() + ch);
         // TODO: Update Word
     }
 
     private handleSpace() {
-        
-        if (this.inputString === '-') {
-            this.inputString = ""
-            this.jump = true;
-            this.onJumpUp = true;
-        } else {
-            this.score.increaseEntry();
-            for (const word of this.words) {
-                if (word.toBeDestroyed) continue
-                if (!word.canDestroy(this.jump)) continue;
-                if (word.checkComplete(this.inputString)) {
-                    this.score.increaseScore(1);
-                    word.toBeDestroyed = true
-                    word.stopMoving()
-                    this.cur_cloud_x = word.x;
-                    this.cur_cloud_y = word.y;
+        this.jump = true;
+        this.onJumpUp = true;
+    }    
 
-                    if (this.jump) {
-                        this.dash_to_target = true;
-                        this.player.anims.play('ninja-run');
-                        this.teleportToTarget(word.x, word.y);
-                        setTimeout(() => this.player.anims.play('ninja-jump-attack')
-                            .on("animationcomplete", () => {
-                                this.dash_to_target = false;
-                                word.playAnimation('cloud-1').on("animationcomplete", () => {
-                                    word.destroyNew();
-                                })
-                                this.dash_to_target = false;
-                                //return to original motion
-                                this.player.anims.play('ninja-run');
-                                this.jump = false;
-                                this.onJumpDown = false;
-                                this.onJumpUp = false
-                            }), this.dash_time);
+    private handleEnter() {
+        this.score.increaseEntry();
+        for (const word of this.words) {
+            if (word.toBeDestroyed) continue
+            if (!word.canDestroy(this.jump)) continue;
+            if (word.checkComplete(this.inputString.getInput())) {
+                this.score.increaseScore(1);
+                word.toBeDestroyed = true
+                word.stopMoving()
+                this.cur_cloud_x = word.x;
+                this.cur_cloud_y = word.y;
 
-                    } else {
-                        this.dash_to_target = true;
-                        this.teleportToTarget(word.x, word.y);
-                        setTimeout(() => this.player.anims.play('ninja-jump-attack')
-                            .on("animationcomplete", () => {
-                                this.dash_to_target = false;
-                                word.playAnimation('cloud-1').on("animationcomplete", () => {
-                                    word.destroyNew();
-                                })
-                                this.dash_to_target = false;
-                                //return to original motion
-                                this.player.anims.play('ninja-run');
-                            }), this.dash_time);
+                if (this.jump) {
+                    this.dash_to_target = true;
+                    this.player.anims.play('ninja-run');
+                    this.teleportToTarget(word.x, word.y);
+                    setTimeout(() => this.player.anims.play('ninja-jump-attack')
+                        .on("animationcomplete", () => {
+                            this.dash_to_target = false;
+                            word.playAnimation('cloud-1').on("animationcomplete", () => {
+                                word.destroyNew();
+                            })
+                            this.dash_to_target = false;
+                            //return to original motion
+                            this.player.anims.play('ninja-run');
+                            this.jump = false;
+                            this.onJumpDown = false;
+                            this.onJumpUp = false
+                        }), this.dash_time);
 
-                    }
-                    this.inputString = "";
-                    return
+                } else {
+                    this.dash_to_target = true;
+                    this.teleportToTarget(word.x, word.y);
+                    setTimeout(() => this.player.anims.play('ninja-jump-attack')
+                        .on("animationcomplete", () => {
+                            this.dash_to_target = false;
+                            word.playAnimation('cloud-1').on("animationcomplete", () => {
+                                word.destroyNew();
+                            })
+                            this.dash_to_target = false;
+                            //return to original motion
+                            this.player.anims.play('ninja-run');
+                        }), this.dash_time);
+
                 }
+                this.inputString.reset();
+                return
             }
         }
-        this.inputString = ""
+        this.inputString.reset()
     }
 
     teleportToTarget(x: number, y: number) {
