@@ -10,7 +10,7 @@ export default class InputString {
     this.scene = scene
     const x = this.scene.cameras.main.centerX;
     const y = this.scene.cameras.main.height - 50; // Adjust the Y position as needed
-    this.inputPrinter = this.scene.add.text(x, y, "Current Input: ", { 
+    this.inputPrinter = this.scene.add.text(x, y, ["Current Input: ", ''], { 
       color: '#FFFFFF', fontSize: '32px', fontStyle: 'bold' 
     }).setOrigin(0.5, 1);
   }
@@ -28,7 +28,6 @@ export default class InputString {
   }
 
   private updatePrinter() {
-    this.inputPrinter.setText(`Current Input: ${this.inputString}`)
-
+    this.inputPrinter.setText(['Current Input:', this.inputString])
   }
 }
