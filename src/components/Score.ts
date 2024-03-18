@@ -19,8 +19,8 @@ export default class Score extends Phaser.GameObjects.Container {
     }
 
     public increaseEntry(): void {
-        this.entry++; 
-        this.updateText(); 
+        this.entry++;
+        this.updateText();
     }
     public increaseScore(points: number): void {
         this.score += points;
@@ -31,8 +31,12 @@ export default class Score extends Phaser.GameObjects.Container {
         return this.score;
     }
 
+    public getAccuracy(): number {
+        return Math.round(this.score * 100 / this.entry)
+    }
+
     private updateText(): void {
         this.scoreText.setText(`Score: ${this.score}`);
-        this.accuracyText.setText(`Accuracy: ${Math.round(this.score*100/this.entry)}%`);
-    } 
+        this.accuracyText.setText(`Accuracy: ${Math.round(this.score * 100 / this.entry)}%`);
+    }
 }

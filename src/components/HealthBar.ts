@@ -16,17 +16,17 @@ export default class HealthBar {
         // Background of the health bar
         this.backgroundGraphics = this.scene.add.graphics();
         this.backgroundGraphics.fillStyle(0x8B0000, 0.6);
-        this.backgroundGraphics.fillRect(10, 10, 200, 20);
+        this.backgroundGraphics.fillRect(30, 30, 200, 20);
 
         // Foreground of the health bar
         this.graphics = this.scene.add.graphics();
         this.graphics.fillStyle(0xff0000, 1);
-        this.graphics.fillRect(10, 10, 200, 20);
+        this.graphics.fillRect(30, 30, 200, 20);
 
         // Border of the health bar
         this.borderGraphics = this.scene.add.graphics();
         this.borderGraphics.lineStyle(2, 0xffffff, 1); // White border with 2 pixel thickness
-        this.borderGraphics.strokeRect(10, 10, 200, 20);
+        this.borderGraphics.strokeRect(30, 30, 200, 20);
     }
 
     public decreaseHealth(amount: number): void {

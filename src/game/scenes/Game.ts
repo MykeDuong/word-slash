@@ -17,7 +17,6 @@ export class Game extends Scene {
     worldSpeed: number = 1;
     frameCounter: number = 0;
 
-
     sprite: Phaser.GameObjects.Sprite;
     player: Phaser.GameObjects.Sprite;
     cloud: Phaser.GameObjects.Sprite;
@@ -192,14 +191,17 @@ export class Game extends Scene {
         this.healthbar = new HealthBar(this)
 
         // Score
-        this.score = new Score(this, window.innerWidth-200, 30, { color: '#FFFFFF', fontSize: '32px', fontStyle: 'bold' })
+        this.score = new Score(
+            this, window.innerWidth - 250, 30,
+            { color: '#FFFFFF', fontSize: '32px', fontStyle: 'bold' }
+        )
 
         this.input.keyboard!.on('keydown', (event) => {
-            console.log(typeof(event))
             if (this.onKeyDown === true) return;
             this.onKeyDown = true
             console.log(event.key)
-            if (event.key === " ") this.handleSpace();
+            if (event.key === "Escape") this.changeScene()
+            else if (event.key === " ") this.handleSpace();
             else if (event.key === "Enter") this.handleEnter();
             else if (this.Alphabet.includes(event.key)) { this.handleAlphabet(event.key) }
             else if (event.key === "Backspace") this.handleBackSpace()
@@ -208,6 +210,7 @@ export class Game extends Scene {
 
         EventBus.emit('current-scene-ready', this);
     }
+
     temp() {
         this.sprite = this.add.sprite(45, 5, 'cloud-1');
     }
@@ -228,7 +231,7 @@ export class Game extends Scene {
     private handleSpace() {
         this.jump = true;
         this.onJumpUp = true;
-    }    
+    }
 
     private handleEnter() {
         this.score.increaseEntry();
@@ -303,7 +306,7 @@ export class Game extends Scene {
         } else {
             if (this.jump === true && this.player.y > this.Player_Pos.y - this.Min_Jump_Height) {
                 if (this.onJumpUp) {
-                    this.player.y -= 50*this.worldSpeed
+                    this.player.y -= 50 * this.worldSpeed
                     if (this.player.y <= this.Player_Pos.y - this.Min_Jump_Height) {
                         this.onJumpDown = true
                         this.onJumpUp = false
@@ -313,7 +316,7 @@ export class Game extends Scene {
             }
 
             if (this.jump === true && this.onJumpDown === true && this.player.y <= this.Player_Pos.y) {
-                this.player.y += 5*this.worldSpeed;
+                this.player.y += 5 * this.worldSpeed;
                 if (this.player.y >= this.Player_Pos.y) {
                     this.player.y = this.Player_Pos.y
                     this.jump = false
@@ -323,11 +326,11 @@ export class Game extends Scene {
             }
 
             if (this.player.y < this.Player_Pos.y && this.onJumpDown === true && this.player.x > this.Player_Pos.x) {
-                this.player.x -= 5*this.worldSpeed;
+                this.player.x -= 5 * this.worldSpeed;
             }
 
             if (this.player.y < this.Player_Pos.y && this.jump === false) {
-                this.player.y += 60*this.worldSpeed;
+                this.player.y += 60 * this.worldSpeed;
                 if (this.player.y > this.Player_Pos.y) {
                     this.player.y = this.Player_Pos.y
                 }
@@ -335,24 +338,27 @@ export class Game extends Scene {
 
             // move back to starting position
             if (this.player.x > this.Player_Pos.x && this.jump === false) {
-                this.player.x -= 10*this.worldSpeed;
+                this.player.x -= 10 * this.worldSpeed;
             }
         }
 
         // adjusting world speed
-        if (this.score.getScore()%1 === 0){
-            this.worldSpeed = 1 + this.score.getScore()/100;
+        if (this.score.getScore() % 1 === 0) {
+            this.worldSpeed = 1 + this.score.getScore() / 100;
         }
     }
 
     changeScene() {
-        this.scene.start('GameOver');
+        this.scene.start('GameOver', {
+            score: this.score.getScore(),
+            accuracy: this.score.getAccuracy()
+        });
     }
     airOrNot() {
         return Math.round(Math.random()) == 1
     }
     createNewWord() {
-        const word = new Word(this, pickRandomWord(), window.innerWidth, window.innerHeight / 2 - 300, this.airOrNot(), () => this.healthbar.decreaseHealth(10) );
+        const word = new Word(this, pickRandomWord(), window.innerWidth, window.innerHeight / 2 - 300, this.airOrNot(), () => this.healthbar.decreaseHealth(10));
         this.words.push(word);
     }
 }

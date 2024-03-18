@@ -40,9 +40,9 @@ export default class Word extends Phaser.GameObjects.Container {
             x: -this.width, // Move off screen to the left
             duration: (scene.scale.width + this.width) / this.velocity * 1000,
             ease: 'Linear',
-            onComplete: () => { 
+            onComplete: () => {
                 this.destroy()
-                onOutOfScreen() 
+                onOutOfScreen()
             }
         });
 
@@ -63,13 +63,14 @@ export default class Word extends Phaser.GameObjects.Container {
         });
     }
 
-    updateVelocity(speed: number){
-        this.velocity = this.velocity*speed;
+    updateVelocity(speed: number) {
+        this.velocity = this.velocity * speed;
         this.tween.updateTo('duration', (this.scene.scale.width + this.width) / this.velocity * 1000);
     }
 
     canDestroy(input: boolean) {
-        return this.onAir == input
+        if (this.onAir) return this.onAir === input
+        return true
     }
     // Method to start an animation
     playAnimation(animationKey: string) {
