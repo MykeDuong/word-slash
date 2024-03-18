@@ -45,6 +45,6 @@ export default class HealthBar {
         // Re-draw the border to ensure it's always visible
         this.borderGraphics.clear();
         this.borderGraphics.lineStyle(2, 0xffffff, 1);
-        this.borderGraphics.strokeRect(10, 10, 200, 20);
+        this.borderGraphics.strokeRect(30, 30, 200, 20);
     }
 }

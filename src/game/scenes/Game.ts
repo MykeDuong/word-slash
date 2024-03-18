@@ -32,7 +32,7 @@ export class Game extends Scene {
     healthbar: HealthBar
     backdrop: Phaser.GameObjects.TileSprite
 
-    readonly Player_Pos = { x: 200, y: 600 };
+    readonly Player_Pos = { x: 200, y: window.innerHeight - 250 };
     readonly Min_Jump_Height = 500
     readonly Alphabet: string[] = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
 
@@ -112,25 +112,6 @@ export class Game extends Scene {
             frameRate: 60,
             repeat: -1
         });
-        /*
-        this.anims.create({
-            key: 'ninja-attack',
-            frames: [
-                { key: 'ninja-attack', frame: "Attack__000.png" },
-                { key: 'ninja-attack', frame: "Attack__001.png" },
-                { key: 'ninja-attack', frame: 'Attack__002.png' },
-                { key: 'ninja-attack', frame: 'Attack__003.png' },
-                { key: 'ninja-attack', frame: 'Attack__004.png' },
-                { key: 'ninja-attack', frame: 'Attack__005.png' },
-                { key: 'ninja-attack', frame: 'Attack__006.png' },
-                { key: 'ninja-attack', frame: 'Attack__007.png' },
-                { key: 'ninja-attack', frame: 'Attack__008.png' },
-                { key: 'ninja-attack', frame: 'Attack__009.png' },
-            ],
-            frameRate: 60,
-            repeat: 1
-        });
-        */
         this.anims.create({
             key: 'ninja-jump-attack',
             frames: [
@@ -176,7 +157,7 @@ export class Game extends Scene {
         this.camera = this.cameras.main;
 
         // Ground + current word
-        this.add.rectangle(0, 1190, window.innerWidth * 2, 1000, 0x000000);
+        this.add.rectangle(0, window.innerHeight + 340, window.innerWidth * 2, 1000, 0x000000);
 
         // Create the text object and add it to the scene
         this.inputString = new InputString(this, "")
@@ -221,11 +202,16 @@ export class Game extends Scene {
     private handleBackSpace() {
         if (this.inputString.getInput().length === 0) return
         this.inputString.setInput(this.inputString.getInput().slice(0, -1))
+        for (const word of this.words) {
+            if(!word.canDestroy(this.jump)) continue;
+        }
     }
 
     private handleAlphabet(ch: string) {
         this.inputString.setInput(this.inputString.getInput() + ch);
-        // TODO: Update Word
+        for (const word of this.words) {
+            if(!word.canDestroy(this.jump)) continue;
+        }
     }
 
     private handleSpace() {
@@ -244,7 +230,6 @@ export class Game extends Scene {
                 word.stopMoving()
                 this.cur_cloud_x = word.x;
                 this.cur_cloud_y = word.y;
-
                 if (this.jump) {
                     this.dash_to_target = true;
                     this.player.anims.play('ninja-run');
@@ -262,7 +247,6 @@ export class Game extends Scene {
                             this.onJumpDown = false;
                             this.onJumpUp = false
                         }), this.dash_time);
-
                 } else {
                     this.dash_to_target = true;
                     this.teleportToTarget(word.x, word.y);
@@ -276,9 +260,8 @@ export class Game extends Scene {
                             //return to original motion
                             this.player.anims.play('ninja-run');
                         }), this.dash_time);
-
                 }
-                this.inputString.reset();
+                this.inputString.reset()
                 return
             }
         }
@@ -316,7 +299,7 @@ export class Game extends Scene {
             }
 
             if (this.jump === true && this.onJumpDown === true && this.player.y <= this.Player_Pos.y) {
-                this.player.y += 5 * this.worldSpeed;
+                this.player.y += window.innerHeight*2/1000*this.worldSpeed;
                 if (this.player.y >= this.Player_Pos.y) {
                     this.player.y = this.Player_Pos.y
                     this.jump = false
