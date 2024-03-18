@@ -41,7 +41,7 @@ export default class HealthBar {
         const healthPercentage = this.currentHealth / this.totalHealth;
         this.graphics.clear();
         this.graphics.fillStyle(0xff0000, 1);
-        this.graphics.fillRect(10, 10, 200 * healthPercentage, 20);
+        this.graphics.fillRect(30, 30, 200 * healthPercentage, 20);
         // Re-draw the border to ensure it's always visible
         this.borderGraphics.clear();
         this.borderGraphics.lineStyle(2, 0xffffff, 1);
