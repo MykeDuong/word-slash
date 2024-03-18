@@ -4,6 +4,8 @@ Welcome to **Word Slash**, a fast-paced side-scrolling game where you play as a 
 
 This project is a submission product for the UA Hackathon.
 
+Access the game [here](https://word-slash.vercel.app/)
+
 ## Getting Started
 
 ### Prerequisites
